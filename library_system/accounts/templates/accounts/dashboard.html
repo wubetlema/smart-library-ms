@@ -1,0 +1,277 @@
+{% extends 'accounts/base.html' %}
+{% block title %}Dashboard – Smart Library{% endblock %}
+
+{% block content %}
+<!-- Welcome Banner -->
+<div class="d-flex align-items-center gap-3 mb-4">
+    <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center text-white fw-bold"
+        style="width:52px;height:52px;font-size:1.3rem;">
+        {{ user.first_name|first|upper|default:user.username|first|upper }}
+    </div>
+    <div>
+        <h4 class="fw-bold mb-0">Welcome back, {{ user.get_full_name|default:user.username }}</h4>
+        <span class="role-badge role-badge-{{ user.role }}">{{ user.get_role_display }}</span>
+        <span class="text-muted small ms-2">{{ user.email }}</span>
+    </div>
+</div>
+
+<!-- ── Overdue notification (student) ── -->
+{% if user.role == 'student' and my_overdue > 0 %}
+<div class="alert d-flex align-items-center gap-3 mb-4 p-3"
+    style="background:#fef2f2;border:1px solid #fecaca;border-radius:12px;">
+    <i class="bi bi-exclamation-triangle-fill text-danger fs-4 flex-shrink-0"></i>
+    <div class="flex-grow-1">
+        <div class="fw-bold text-danger">You have {{ my_overdue }} overdue book{{ my_overdue|pluralize }}!</div>
+        <div class="small text-danger" style="opacity:.85;">Late fines are accumulating at ETB 5/day. Please return them
+            immediately.</div>
+    </div>
+    <a href="{% url 'my_borrowings' %}" class="btn btn-sm btn-danger">View Now</a>
+</div>
+{% endif %}
+
+<!-- ── Stat Cards ── -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="card stat-card text-white h-100" style="background:linear-gradient(135deg,#0d6efd,#3d8bfd);">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="stat-label">Total Books</div>
+                    <div class="stat-value">{{ total_books }}</div>
+                </div>
+                <i class="bi bi-journals stat-icon"></i>
+            </div>
+            <a href="{% url 'book_list' %}" class="text-white-50 small mt-2 text-decoration-none">
+                View catalog <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card stat-card text-white h-100" style="background:linear-gradient(135deg,#198754,#28c76f);">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="stat-label">Available Books</div>
+                    <div class="stat-value">{{ available_books }}</div>
+                </div>
+                <i class="bi bi-check-circle stat-icon"></i>
+            </div>
+            <a href="{% url 'book_list' %}?availability=available"
+                class="text-white-50 small mt-2 text-decoration-none">
+                Browse available <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card stat-card text-white h-100" style="background:linear-gradient(135deg,#fd7e14,#ffaa5a);">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="stat-label">Borrowed Books</div>
+                    <div class="stat-value">{{ borrowed_books }}</div>
+                </div>
+                <i class="bi bi-book-half stat-icon"></i>
+            </div>
+            {% if user.role == 'admin' or user.role == 'librarian' %}
+            <a href="{% url 'borrow_list' %}" class="text-white-50 small mt-2 text-decoration-none">
+                View records <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+            {% else %}
+            <span class="text-white-50 small mt-2">Currently out</span>
+            {% endif %}
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card stat-card text-white h-100" style="background:linear-gradient(135deg,#6f42c1,#9b6dff);">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="stat-label">Registered Members</div>
+                    <div class="stat-value">{{ registered_members }}</div>
+                </div>
+                <i class="bi bi-people stat-icon"></i>
+            </div>
+            {% if user.role == 'admin' or user.role == 'librarian' %}
+            <a href="{% url 'member_list' %}" class="text-white-50 small mt-2 text-decoration-none">
+                Manage members <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+            {% else %}
+            <span class="text-white-50 small mt-2">Student members</span>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- ── Extra stats row (admin/librarian) ── -->
+{% if user.role == 'admin' or user.role == 'librarian' %}
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="card stat-card text-white h-100" style="background:linear-gradient(135deg,#dc3545,#ff6b7a);">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="stat-label">Overdue Books</div>
+                    <div class="stat-value">{{ overdue_count }}</div>
+                </div>
+                <i class="bi bi-exclamation-triangle stat-icon"></i>
+            </div>
+            <a href="{% url 'borrow_list' %}?status=overdue" class="text-white-50 small mt-2 text-decoration-none">
+                View overdue <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- ── Student personal stats ── -->
+{% if user.role == 'student' %}
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="card stat-card text-white h-100" style="background:linear-gradient(135deg,#0dcaf0,#5de0f5);">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="stat-label">My Active Borrows</div>
+                    <div class="stat-value">{{ my_active }}</div>
+                </div>
+                <i class="bi bi-bookmark-check stat-icon"></i>
+            </div>
+            <a href="{% url 'my_borrowings' %}" class="text-white-50 small mt-2 text-decoration-none">
+                View history <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+        </div>
+    </div>
+    {% if my_overdue > 0 %}
+    <div class="col-6 col-md-3">
+        <div class="card stat-card text-white h-100" style="background:linear-gradient(135deg,#dc3545,#ff6b7a);">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="stat-label">My Overdue</div>
+                    <div class="stat-value">{{ my_overdue }}</div>
+                </div>
+                <i class="bi bi-exclamation-circle stat-icon"></i>
+            </div>
+            <a href="{% url 'my_borrowings' %}" class="text-white-50 small mt-2 text-decoration-none">
+                Check now <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+
+<!-- ── Quick Actions ── -->
+<h6 class="fw-bold text-muted mb-3 text-uppercase" style="font-size:.75rem;letter-spacing:.08em;">Quick Actions</h6>
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-4 col-lg-3">
+        <a href="{% url 'book_list' %}" class="text-decoration-none">
+            <div class="card p-3 text-center h-100 border-0"
+                style="background:linear-gradient(135deg,#0d6efd,#3d8bfd);">
+                <i class="bi bi-journals text-white fs-2 mb-2"></i>
+                <div class="text-white fw-semibold">Book Catalog</div>
+                <div class="text-white-50 small">Browse all books</div>
+            </div>
+        </a>
+    </div>
+    <div class="col-6 col-md-4 col-lg-3">
+        <a href="{% url 'profile' %}" class="text-decoration-none">
+            <div class="card p-3 text-center h-100 border-0"
+                style="background:linear-gradient(135deg,#6f42c1,#9b6dff);">
+                <i class="bi bi-person-circle text-white fs-2 mb-2"></i>
+                <div class="text-white fw-semibold">My Profile</div>
+                <div class="text-white-50 small">View & edit profile</div>
+            </div>
+        </a>
+    </div>
+
+    {% if user.role == 'admin' or user.role == 'librarian' %}
+    <div class="col-6 col-md-4 col-lg-3">
+        <a href="{% url 'borrow_list' %}" class="text-decoration-none">
+            <div class="card p-3 text-center h-100 border-0"
+                style="background:linear-gradient(135deg,#198754,#28c76f);">
+                <i class="bi bi-list-check text-white fs-2 mb-2"></i>
+                <div class="text-white fw-semibold">Borrow Records</div>
+                <div class="text-white-50 small">Manage borrowing</div>
+            </div>
+        </a>
+    </div>
+    <div class="col-6 col-md-4 col-lg-3">
+        <a href="{% url 'member_list' %}" class="text-decoration-none">
+            <div class="card p-3 text-center h-100 border-0"
+                style="background:linear-gradient(135deg,#fd7e14,#ffaa5a);">
+                <i class="bi bi-people text-white fs-2 mb-2"></i>
+                <div class="text-white fw-semibold">Members</div>
+                <div class="text-white-50 small">Manage members</div>
+            </div>
+        </a>
+    </div>
+    <div class="col-6 col-md-4 col-lg-3">
+        <a href="{% url 'admin_dashboard' %}" class="text-decoration-none">
+            <div class="card p-3 text-center h-100 border-0"
+                style="background:linear-gradient(135deg,#dc3545,#ff6b7a);">
+                <i class="bi bi-speedometer2 text-white fs-2 mb-2"></i>
+                <div class="text-white fw-semibold">Admin Dashboard</div>
+                <div class="text-white-50 small">Stats & charts</div>
+            </div>
+        </a>
+    </div>
+    <div class="col-6 col-md-4 col-lg-3">
+        <a href="{% url 'reports' %}" class="text-decoration-none">
+            <div class="card p-3 text-center h-100 border-0"
+                style="background:linear-gradient(135deg,#0dcaf0,#5de0f5);">
+                <i class="bi bi-bar-chart-line text-white fs-2 mb-2"></i>
+                <div class="text-white fw-semibold">Reports</div>
+                <div class="text-white-50 small">Overdue & fines</div>
+            </div>
+        </a>
+    </div>
+    {% else %}
+    <div class="col-6 col-md-4 col-lg-3">
+        <a href="{% url 'my_borrowings' %}" class="text-decoration-none">
+            <div class="card p-3 text-center h-100 border-0"
+                style="background:linear-gradient(135deg,#198754,#28c76f);">
+                <i class="bi bi-bookmark-check text-white fs-2 mb-2"></i>
+                <div class="text-white fw-semibold">My Borrowings</div>
+                <div class="text-white-50 small">Track your books</div>
+            </div>
+        </a>
+    </div>
+    {% endif %}
+
+    <div class="col-6 col-md-4 col-lg-3">
+        <a href="{% url 'change_password' %}" class="text-decoration-none">
+            <div class="card p-3 text-center h-100 border-0"
+                style="background:linear-gradient(135deg,#6c757d,#9aa0ac);">
+                <i class="bi bi-key text-white fs-2 mb-2"></i>
+                <div class="text-white fw-semibold">Change Password</div>
+                <div class="text-white-50 small">Update security</div>
+            </div>
+        </a>
+    </div>
+</div>
+
+<!-- ── Role info banner ── -->
+<div class="card border-0 p-4" style="background:linear-gradient(135deg,#f8f9fa,#e9ecef);">
+    {% if user.role == 'admin' %}
+    <div class="d-flex align-items-center gap-3">
+        <i class="bi bi-shield-lock fs-2 text-danger"></i>
+        <div>
+            <div class="fw-bold text-danger">Administrator Access</div>
+            <div class="text-muted small">Full access to all system features including user management, role assignment,
+                and system configuration.</div>
+        </div>
+    </div>
+    {% elif user.role == 'librarian' %}
+    <div class="d-flex align-items-center gap-3">
+        <i class="bi bi-person-badge fs-2 text-primary"></i>
+        <div>
+            <div class="fw-bold text-primary">Librarian Access</div>
+            <div class="text-muted small">Manage books, handle borrowing requests, and view member information.</div>
+        </div>
+    </div>
+    {% else %}
+    <div class="d-flex align-items-center gap-3">
+        <i class="bi bi-mortarboard fs-2 text-success"></i>
+        <div>
+            <div class="fw-bold text-success">Student / Member</div>
+            <div class="text-muted small">Browse the library catalog, borrow books, and track your borrowing history.
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

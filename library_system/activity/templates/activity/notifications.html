@@ -1,0 +1,40 @@
+{% extends 'accounts/base.html' %}
+{% block title %}Notifications – LibraryMS{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center gap-3 mb-4">
+    <div class="rounded-circle bg-warning d-flex align-items-center justify-content-center text-white"
+        style="width:44px;height:44px;">
+        <i class="bi bi-bell-fill fs-5"></i>
+    </div>
+    <div>
+        <h5 class="fw-bold mb-0">Notifications</h5>
+        <p class="text-muted small mb-0">Your notification history</p>
+    </div>
+</div>
+
+<div class="card">
+    {% for n in notifications %}
+    <div class="d-flex align-items-start gap-3 p-3 {% if not forloop.last %}border-bottom{% endif %}">
+        <div class="rounded-circle d-flex align-items-center justify-content-center text-white flex-shrink-0"
+            style="width:38px;height:38px;background:{% if n.type == 'danger' %}#dc2626{% elif n.type == 'warning' %}#d97706{% elif n.type == 'success' %}#16a34a{% else %}#2563eb{% endif %};">
+            <i
+                class="bi bi-{% if n.type == 'danger' %}exclamation-triangle{% elif n.type == 'warning' %}clock{% elif n.type == 'success' %}check-circle{% else %}info-circle{% endif %} small"></i>
+        </div>
+        <div class="flex-grow-1">
+            <div class="fw-semibold small">{{ n.title }}</div>
+            <div class="text-muted small">{{ n.message }}</div>
+            {% if n.link %}
+            <a href="{{ n.link }}" class="small text-primary">View details</a>
+            {% endif %}
+        </div>
+        <div class="text-muted" style="font-size:.72rem;white-space:nowrap;">{{ n.created_at|date:"M d, H:i" }}</div>
+    </div>
+    {% empty %}
+    <div class="text-center text-muted py-5">
+        <i class="bi bi-bell-slash fs-2 d-block mb-2"></i>
+        No notifications yet.
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,147 @@
+﻿<ul class="nav flex-column gap-1">
+
+    <!-- MAIN -->
+    <li><div class="section-label">Main</div></li>
+    <li class="nav-item">
+        <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'home' %}">
+            <i class="bi bi-house-door"></i>Home
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'dashboard' %}">
+            <i class="bi bi-grid-1x2"></i>Dashboard
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link {% if request.resolver_match.url_name == 'about' %}active{% endif %}" href="{% url 'about' %}">
+            <i class="bi bi-info-circle"></i>About
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link {% if request.resolver_match.url_name == 'contact' %}active{% endif %}" href="{% url 'contact' %}">
+            <i class="bi bi-envelope"></i>Contact
+        </a>
+    </li>
+
+    <!-- BOOKS -->
+    <li><div class="section-label mt-2">Books</div></li>
+    <li class="nav-item">
+        <a class="nav-link {% if request.resolver_match.url_name == 'book_list' %}active{% endif %}" href="{% url 'book_list' %}">
+            <i class="bi bi-journals"></i>Book Catalog
+        </a>
+    </li>
+    {% if user.role == 'admin' or user.role == 'librarian' %}
+    <li class="nav-item">
+        <a class="nav-link {% if request.resolver_match.url_name == 'book_add' %}active{% endif %}" href="{% url 'book_add' %}">
+            <i class="bi bi-plus-circle"></i>Add Book
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link {% if request.resolver_match.url_name == 'category_list' %}active{% endif %}" href="{% url 'category_list' %}">
+            <i class="bi bi-tags"></i>Categories
+        </a>
+    </li>
+    {% endif %}
+
+    <!-- BORROWING -->
+    <li><div class="section-label mt-2">Borrowing</div></li>
+    {% if user.role == 'admin' or user.role == 'librarian' %}
+    <li class="nav-item">
+        <a class="nav-link {% if request.resolver_match.url_name == 'borrow_book' %}active{% endif %}" href="{% url 'borrow_book' %}">
+            <i class="bi bi-book-half"></i>Borrow Books
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link {% if request.resolver_match.url_name == 'borrow_list' %}active{% endif %}" href="{% url 'borrow_list' %}">
+            <i class="bi bi-list-check"></i>Borrow Records
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'borrow_list' %}?status=borrowed">
+            <i class="bi bi-arrow-return-left"></i>Return Books
+        </a>
+    </li>
+    {% else %}
+    <li class="nav-item">
+        <a class="nav-link {% if request.resolver_match.url_name == 'my_borrowings' %}active{% endif %}" href="{% url 'my_borrowings' %}">
+            <i class="bi bi-bookmark-check"></i>My Borrowings
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link {% if request.resolver_match.url_name == 'my_reservations' %}active{% endif %}" href="{% url 'my_reservations' %}">
+            <i class="bi bi-bookmark-star"></i>My Reservations
+        </a>
+    </li>
+    {% endif %}
+
+    <!-- MEMBERS -->
+    {% if user.role == 'admin' or user.role == 'librarian' %}
+    <li><div class="section-label mt-2">Members</div></li>
+    <li class="nav-item">
+        <a class="nav-link {% if request.resolver_match.url_name == 'member_list' %}active{% endif %}" href="{% url 'member_list' %}">
+            <i class="bi bi-people"></i>Members
+        </a>
+    </li>
+    {% if user.role == 'admin' %}
+    <li class="nav-item">
+        <a class="nav-link {% if request.resolver_match.url_name == 'user_list' %}active{% endif %}" href="{% url 'user_list' %}">
+            <i class="bi bi-person-gear"></i>Manage Users
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link {% if request.resolver_match.url_name == 'create_librarian' %}active{% endif %}" href="{% url 'create_librarian' %}">
+            <i class="bi bi-person-badge"></i>Create Librarian
+        </a>
+    </li>
+    {% endif %}
+    {% endif %}
+
+    <!-- REPORTS -->
+    {% if user.role == 'admin' or user.role == 'librarian' %}
+    <li><div class="section-label mt-2">Reports</div></li>
+    <li class="nav-item">
+        <a class="nav-link {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}" href="{% url 'admin_dashboard' %}">
+            <i class="bi bi-speedometer2"></i>Admin Dashboard
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link {% if request.resolver_match.url_name == 'reports' %}active{% endif %}" href="{% url 'reports' %}">
+            <i class="bi bi-bar-chart-line"></i>Reports
+        </a>
+    </li>
+    {% if user.role == 'admin' %}
+    <li class="nav-item">
+        <a class="nav-link {% if request.resolver_match.url_name == 'activity_log' %}active{% endif %}" href="{% url 'activity_log' %}">
+            <i class="bi bi-activity"></i>Activity Log
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link {% if request.resolver_match.url_name == 'trigger_backup' %}active{% endif %}" href="{% url 'trigger_backup' %}">
+            <i class="bi bi-database-fill-down"></i>Backup Data
+        </a>
+    </li>
+    {% endif %}
+    {% endif %}
+
+    <!-- SETTINGS -->
+    <li><div class="section-label mt-2">Settings</div></li>
+    <li class="nav-item">
+        <a class="nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}" href="{% url 'profile' %}">
+            <i class="bi bi-person"></i>My Profile
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link {% if request.resolver_match.url_name == 'change_password' %}active{% endif %}" href="{% url 'change_password' %}">
+            <i class="bi bi-key"></i>Change Password
+        </a>
+    </li>
+
+    <!-- SESSION -->
+    <li><div class="section-label mt-2">Session</div></li>
+    <li class="nav-item">
+        <a class="nav-link text-danger" href="{% url 'logout' %}">
+            <i class="bi bi-box-arrow-right"></i>Logout
+        </a>
+    </li>
+
+</ul>

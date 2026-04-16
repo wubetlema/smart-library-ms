@@ -1,0 +1,125 @@
+{% extends 'accounts/base.html' %}
+{% block title %}Issue Book – Smart Library{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+
+        <!-- Page Header -->
+        <div class="d-flex align-items-center gap-3 mb-4">
+            <div class="d-flex align-items-center justify-content-center rounded-circle bg-success text-white"
+                style="width:48px;height:48px;">
+                <i class="bi bi-book-half fs-5"></i>
+            </div>
+            <div>
+                <h4 class="fw-bold mb-0">{{ title }}</h4>
+                <p class="text-muted small mb-0">Fill in the details to issue a book to a member</p>
+            </div>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-header py-3 d-flex align-items-center gap-2">
+                <i class="bi bi-pencil-square text-primary"></i>
+                <span>Borrow Details</span>
+            </div>
+            <div class="card-body p-4">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+
+                    <!-- Member -->
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">
+                            <i class="bi bi-person me-1 text-primary"></i>Member <span class="text-danger">*</span>
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i
+                                    class="bi bi-person-fill text-primary"></i></span>
+                            {{ form.member }}
+                        </div>
+                        {% if form.member.errors %}
+                        <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{
+                            form.member.errors.0 }}</div>
+                        {% endif %}
+                        <div class="form-text">Select the member who is borrowing the book.</div>
+                    </div>
+
+                    <!-- Book -->
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">
+                            <i class="bi bi-book me-1 text-success"></i>Book <span class="text-danger">*</span>
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="bi bi-journals text-success"></i></span>
+                            {{ form.book }}
+                        </div>
+                        {% if form.book.errors %}
+                        <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{
+                            form.book.errors.0 }}</div>
+                        {% endif %}
+                        <div class="form-text">Only available books are shown.</div>
+                    </div>
+
+                    <!-- Due Date -->
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">
+                            <i class="bi bi-calendar-event me-1 text-warning"></i>Due Date <span
+                                class="text-danger">*</span>
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="bi bi-calendar3 text-warning"></i></span>
+                            {{ form.due_date }}
+                        </div>
+                        {% if form.due_date.errors %}
+                        <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{
+                            form.due_date.errors.0 }}</div>
+                        {% endif %}
+                        <div class="form-text">Default is 7 days from today. Late returns incur ETB 2/day fine.</div>
+                    </div>
+
+                    <!-- Notes -->
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">
+                            <i class="bi bi-chat-left-text me-1 text-secondary"></i>Notes
+                        </label>
+                        {{ form.notes }}
+                        <div class="form-text">Optional remarks about this borrow.</div>
+                    </div>
+
+                    <!-- Non-field errors -->
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger d-flex align-items-center gap-2 py-2">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        <span>{{ form.non_field_errors.0 }}</span>
+                    </div>
+                    {% endif %}
+
+                    <!-- Fine info -->
+                    <div class="alert alert-info d-flex align-items-center gap-2 py-2 mb-4">
+                        <i class="bi bi-info-circle-fill"></i>
+                        <span>Late return fine: <strong>ETB 2 per day</strong> after the due date.</span>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="d-flex gap-3">
+                        <button type="submit" class="btn btn-success px-4 fw-semibold">
+                            <i class="bi bi-check-circle me-2"></i>Confirm Borrow
+                        </button>
+                        <a href="{% url 'borrow_list' %}" class="btn btn-outline-secondary px-4">
+                            <i class="bi bi-x-circle me-2"></i>Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.querySelectorAll('select, input[type=date], textarea').forEach(el => {
+        el.classList.add('form-control');
+    });
+</script>
+{% endblock %}

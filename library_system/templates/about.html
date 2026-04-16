@@ -1,0 +1,82 @@
+{% extends 'accounts/base.html' %}
+{% block title %}About – Smart Library{% endblock %}
+
+{% block content %}
+<!-- Hero -->
+<div class="px-4 py-5 text-center rounded-3 mb-5" style="background:linear-gradient(135deg,#1e293b,#334155);">
+    <i class="bi bi-book-half text-white mb-3" style="font-size:3.5rem;"></i>
+    <h2 class="fw-bold text-white mb-2">Smart Library</h2>
+    <p class="text-secondary lead mb-0">A modern library management system built for students, librarians and
+        administrators.</p>
+</div>
+
+<div class="row g-4 mb-5">
+    <div class="col-md-4">
+        <div class="card p-4 h-100 text-center">
+            <i class="bi bi-mortarboard fs-1 text-primary mb-3"></i>
+            <h5 class="fw-bold">For Students</h5>
+            <p class="text-muted small">Browse the catalog, borrow books, track due dates, and read online — all from
+                one place.</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card p-4 h-100 text-center">
+            <i class="bi bi-person-badge fs-1 text-success mb-3"></i>
+            <h5 class="fw-bold">For Librarians</h5>
+            <p class="text-muted small">Manage books, process borrowing requests, track returns, and monitor overdue
+                books efficiently.</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card p-4 h-100 text-center">
+            <i class="bi bi-shield-lock fs-1 text-danger mb-3"></i>
+            <h5 class="fw-bold">For Admins</h5>
+            <p class="text-muted small">Full system control — manage users, generate reports, export data, and monitor
+                all activity.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Features -->
+<div class="card p-4 mb-4">
+    <h5 class="fw-bold mb-4"><i class="bi bi-stars me-2 text-warning"></i>Key Features</h5>
+    <div class="row g-3">
+        {% for feature in features %}
+        <div class="col-md-6">
+            <div class="d-flex align-items-center gap-3">
+                <i class="bi bi-check-circle-fill text-success fs-5 flex-shrink-0"></i>
+                <span>{{ feature }}</span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Contact -->
+<div class="card p-4">
+    <h5 class="fw-bold mb-3"><i class="bi bi-envelope me-2 text-primary"></i>Contact & Support</h5>
+    <div class="row g-3">
+        <div class="col-md-4 d-flex align-items-center gap-3">
+            <i class="bi bi-geo-alt fs-4 text-primary"></i>
+            <div>
+                <div class="fw-semibold small">Location</div>
+                <div class="text-muted small">Addis Ababa, Ethiopia</div>
+            </div>
+        </div>
+        <div class="col-md-4 d-flex align-items-center gap-3">
+            <i class="bi bi-envelope fs-4 text-success"></i>
+            <div>
+                <div class="fw-semibold small">Email</div>
+                <div class="text-muted small">library@smartlib.et</div>
+            </div>
+        </div>
+        <div class="col-md-4 d-flex align-items-center gap-3">
+            <i class="bi bi-clock fs-4 text-warning"></i>
+            <div>
+                <div class="fw-semibold small">Hours</div>
+                <div class="text-muted small">Mon–Fri, 8am – 6pm</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

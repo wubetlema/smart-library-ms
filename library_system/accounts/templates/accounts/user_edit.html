@@ -1,0 +1,108 @@
+{% extends 'accounts/base.html' %}
+{% block title %}Edit User – LibraryMS{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+
+        <div class="d-flex align-items-center gap-3 mb-4">
+            <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center text-white fw-bold"
+                style="width:46px;height:46px;font-size:1.1rem;">
+                {{ edited_user.first_name|first|upper|default:edited_user.username|first|upper }}
+            </div>
+            <div>
+                <h5 class="fw-bold mb-0">Edit User: {{ edited_user.username }}</h5>
+                <p class="text-muted small mb-0">Update account details, role and status</p>
+            </div>
+        </div>
+
+        <form method="post" novalidate>
+            {% csrf_token %}
+
+            <!-- Personal Info -->
+            <div class="card mb-3">
+                <div class="card-header"><i class="bi bi-person me-2 text-primary"></i>Personal Information</div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Username</label>
+                            {{ form.username }}
+                            {% if form.username.errors %}<div class="text-danger small mt-1">{{ form.username.errors.0
+                                }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Email</label>
+                            {{ form.email }}
+                            {% if form.email.errors %}<div class="text-danger small mt-1">{{ form.email.errors.0 }}
+                            </div>{% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">First Name</label>
+                            {{ form.first_name }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Last Name</label>
+                            {{ form.last_name }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Phone</label>
+                            {{ form.phone }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Date of Birth</label>
+                            {{ form.date_of_birth }}
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Address</label>
+                            {{ form.address }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Role & Permissions -->
+            <div class="card mb-3">
+                <div class="card-header"><i class="bi bi-shield-lock me-2 text-danger"></i>Role &amp; Permissions</div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Role <span class="text-danger">*</span></label>
+                            {{ form.role }}
+                            <div class="form-text">Changing role affects what this user can access.</div>
+                            {% if form.role.errors %}<div class="text-danger small mt-1">{{ form.role.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-3 d-flex align-items-center gap-3 pt-3">
+                            <div class="form-check form-switch">
+                                {{ form.is_active }}
+                                <label class="form-check-label fw-semibold" for="{{ form.is_active.id_for_label }}">
+                                    Account Active
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-3 d-flex align-items-center gap-3 pt-3">
+                            <div class="form-check form-switch">
+                                {{ form.is_approved }}
+                                <label class="form-check-label fw-semibold" for="{{ form.is_approved.id_for_label }}">
+                                    Approved
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {% if form.non_field_errors %}
+            <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+            {% endif %}
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary px-4">
+                    <i class="bi bi-save me-2"></i>Save Changes
+                </button>
+                <a href="{% url 'user_list' %}" class="btn btn-outline-secondary px-4">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

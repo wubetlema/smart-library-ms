@@ -1,0 +1,1234 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}Smart Library{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+        <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
+    <!-- NProgress loading bar -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.css">
+    <style>
+        #nprogress .bar { background: #2563eb !important; height: 3px !important; }
+        #nprogress .peg { box-shadow: 0 0 10px #2563eb, 0 0 5px #2563eb !important; }
+        #nprogress .spinner-icon { border-top-color: #2563eb !important; border-left-color: #2563eb !important; }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+    <style>
+        /* ── Variables ── */
+        :root {
+            --primary: #2563eb;
+            --primary-light: #eff6ff;
+            --primary-soft: #dbeafe;
+            --success: #16a34a;
+            --sidebar-bg: #1e293b;
+            --sidebar-w: 252px;
+            --navbar-h: 58px;
+            --radius: 12px;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, .07);
+            --shadow: 0 4px 14px rgba(0, 0, 0, .09);
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: #f1f5f9;
+            color: #1e293b;
+            font-size: .9rem;
+            line-height: 1.6;
+            /* no margin-left by default — mobile first */
+        }
+
+        /* ── Scrollbar ── */
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 99px;
+        }
+
+        /* ══════════════════════════════════════
+           NAVBAR  (full-width on all sizes)
+        ══════════════════════════════════════ */
+        .top-navbar {
+            height: var(--navbar-h);
+            background: #fff;
+            border-bottom: 1px solid #e2e8f0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1050;
+            display: flex;
+            align-items: center;
+            padding: 0 1rem;
+            gap: .75rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* hamburger — always visible, hides on md+ when sidebar is always open */
+        .sidebar-toggler {
+            background: none;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            color: #64748b;
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: background .15s;
+        }
+
+        .sidebar-toggler:hover {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .brand {
+            font-weight: 800;
+            font-size: 1.05rem;
+            color: var(--primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: .45rem;
+            letter-spacing: -.02em;
+            white-space: nowrap;
+        }
+
+        .brand .brand-icon {
+            background: var(--primary);
+            color: #fff;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .9rem;
+            flex-shrink: 0;
+        }
+
+        /* search — hidden on xs, shown md+ */
+        .search-box {
+            flex: 1;
+            max-width: 340px;
+            display: none;
+            /* hidden mobile */
+            align-items: center;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 9px;
+            padding: 0 .8rem;
+            transition: border-color .2s, box-shadow .2s;
+        }
+
+        .search-box:focus-within {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-soft);
+        }
+
+        .search-box i {
+            color: #94a3b8;
+            font-size: .85rem;
+        }
+
+        .search-box input {
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #1e293b;
+            width: 100%;
+            padding: .42rem .45rem;
+            font-size: .855rem;
+            font-family: inherit;
+        }
+
+        .search-box input::placeholder {
+            color: #94a3b8;
+        }
+
+        .nav-actions {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: .4rem;
+        }
+
+        /* user pill */
+        .user-pill {
+            display: flex;
+            align-items: center;
+            gap: .45rem;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 99px;
+            padding: .28rem .7rem .28rem .35rem;
+            cursor: pointer;
+            font-size: .83rem;
+            font-weight: 500;
+            color: #1e293b;
+            transition: background .15s;
+            min-height: 38px;
+            /* touch target */
+        }
+
+        .user-pill:hover {
+            background: var(--primary-light);
+            border-color: var(--primary-soft);
+        }
+
+        .user-pill .avatar {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .72rem;
+            font-weight: 700;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .user-pill .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* role badges */
+        .role-badge {
+            font-size: .62rem;
+            font-weight: 700;
+            padding: .2rem .5rem;
+            border-radius: 99px;
+            letter-spacing: .02em;
+        }
+
+        .role-badge-admin {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .role-badge-librarian {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .role-badge-student {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+
+        /* ══════════════════════════════════════
+           SIDEBAR  — off-canvas by default (mobile-first)
+        ══════════════════════════════════════ */
+        #sidebar {
+            width: var(--sidebar-w);
+            background: var(--sidebar-bg);
+            position: fixed;
+            top: var(--navbar-h);
+            left: 0;
+            bottom: 0;
+            overflow-y: auto;
+            z-index: 1040;
+            padding: .85rem .7rem 2rem;
+            /* OFF by default on mobile */
+            transform: translateX(-100%);
+            transition: transform .25s ease;
+        }
+
+        #sidebar.show {
+            transform: translateX(0);
+            box-shadow: 6px 0 24px rgba(0, 0, 0, .18);
+        }
+
+        #sidebar .section-label {
+            font-size: .62rem;
+            font-weight: 700;
+            letter-spacing: .1em;
+            color: #475569;
+            text-transform: uppercase;
+            padding: .6rem .55rem .2rem;
+        }
+
+        #sidebar .nav-link {
+            color: #94a3b8;
+            border-radius: 9px;
+            padding: .55rem .75rem;
+            /* bigger touch target */
+            font-size: .855rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: .6rem;
+            transition: all .15s;
+            text-decoration: none;
+            min-height: 42px;
+            /* touch target */
+        }
+
+        #sidebar .nav-link i {
+            font-size: .95rem;
+            width: 18px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        #sidebar .nav-link:hover {
+            color: #f1f5f9;
+            background: rgba(255, 255, 255, .07);
+        }
+
+        #sidebar .nav-link.active {
+            color: #fff;
+            background: var(--primary);
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(37, 99, 235, .3);
+        }
+
+        #sidebar .nav-link.text-danger {
+            color: #f87171 !important;
+        }
+
+        #sidebar .nav-link.text-danger:hover {
+            background: rgba(220, 53, 69, .12);
+        }
+
+        /* overlay behind sidebar on mobile */
+        #sidebarOverlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .4);
+            z-index: 1039;
+        }
+
+        #sidebarOverlay.show {
+            display: block;
+        }
+
+        /* ══════════════════════════════════════
+           PAGE WRAPPER  — mobile: full width
+        ══════════════════════════════════════ */
+        }
+
+        /* Role badges */
+        .role-badge {
+            font-size: .65rem;
+            font-weight: 600;
+            padding: .2rem .55rem;
+            border-radius: 99px;
+            letter-spacing: .02em;
+        }
+
+        .role-badge-admin {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .role-badge-librarian {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .role-badge-student {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+
+        /* ══════════════════════════════════════
+           SIDEBAR
+        ══════════════════════════════════════ */
+        #sidebar {
+            width: var(--sidebar-width);
+            background: var(--sidebar-bg);
+            position: fixed;
+            top: var(--navbar-h);
+            left: 0;
+            bottom: 0;
+            overflow-y: auto;
+            z-index: 1040;
+            padding: 1rem .75rem 2rem;
+            transition: transform .25s ease;
+        }
+
+        #sidebar .section-label {
+            font-size: .65rem;
+            font-weight: 700;
+            letter-spacing: .1em;
+            color: #475569;
+            text-transform: uppercase;
+            padding: .65rem .6rem .25rem;
+        }
+
+        #sidebar .nav-link {
+            color: #94a3b8;
+            border-radius: 9px;
+            padding: .5rem .75rem;
+            font-size: .855rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: .6rem;
+            transition: all .15s;
+            text-decoration: none;
+        }
+
+        #sidebar .nav-link i {
+            font-size: .95rem;
+            width: 18px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        #sidebar .nav-link:hover {
+            color: #f1f5f9;
+            background: rgba(255, 255, 255, .07);
+        }
+
+        #sidebar .nav-link.active {
+            color: #fff;
+            background: var(--primary);
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(37, 99, 235, .35);
+        }
+
+        #sidebar .nav-link.text-danger {
+            color: #f87171 !important;
+        }
+
+        #sidebar .nav-link.text-danger:hover {
+            background: rgba(220, 53, 69, .12);
+            color: #fca5a5 !important;
+        }
+
+        /* ══════════════════════════════════════
+           LAYOUT
+        ══════════════════════════════════════ */
+        #page-wrapper {
+            margin-top: var(--navbar-h);
+            margin-left: var(--sidebar-width);
+            min-height: calc(100vh - var(--navbar-h));
+            display: flex;
+            flex-direction: column;
+        }
+
+        #page-wrapper.no-sidebar {
+            margin-left: 0;
+        }
+
+        #main-content {
+            flex: 1;
+            padding: 1.75rem 2rem;
+        }
+
+        /* ══════════════════════════════════════
+           CARDS
+        ══════════════════════════════════════ */
+        .card {
+            border: 1px solid #e2e8f0;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            background: #fff;
+        }
+
+        .card-header {
+            background: transparent;
+            border-bottom: 1px solid #f1f5f9;
+            font-weight: 600;
+            padding: .9rem 1.25rem;
+            border-radius: var(--radius) var(--radius) 0 0 !important;
+        }
+
+        .card-body {
+            padding: 1.25rem;
+        }
+
+        /* Stat cards */
+        .stat-card {
+            border-radius: var(--radius);
+            padding: 1.25rem 1.4rem;
+            border: none !important;
+            box-shadow: var(--shadow);
+        }
+
+        .stat-card .stat-icon {
+            font-size: 2rem;
+            opacity: .85;
+        }
+
+        .stat-card .stat-value {
+            font-size: 2rem;
+            font-weight: 800;
+            line-height: 1.1;
+            letter-spacing: -.03em;
+        }
+
+        .stat-card .stat-label {
+            font-size: .75rem;
+            opacity: .75;
+            margin-top: .2rem;
+            font-weight: 500;
+        }
+
+        /* ══════════════════════════════════════
+           TABLES
+        ══════════════════════════════════════ */
+        .table {
+            font-size: .875rem;
+        }
+
+        .table th {
+            font-weight: 600;
+            font-size: .75rem;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            color: #64748b;
+            border-bottom-width: 1px;
+        }
+
+        .table td {
+            vertical-align: middle;
+            color: #334155;
+        }
+
+        .table-hover tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        .table-dark th {
+            background: #1e293b;
+            color: #e2e8f0;
+        }
+
+        /* ══════════════════════════════════════
+           FORMS
+        ══════════════════════════════════════ */
+        .form-control,
+        .form-select {
+            border-radius: 9px;
+            border: 1px solid #e2e8f0;
+            font-size: .875rem;
+            padding: .5rem .85rem;
+            transition: border-color .2s, box-shadow .2s;
+            font-family: inherit;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-soft);
+        }
+
+        .input-group-text {
+            border-radius: 9px 0 0 9px;
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
+            color: #64748b;
+        }
+
+        .input-group .form-control {
+            border-radius: 0 9px 9px 0;
+        }
+
+        .form-label {
+            font-weight: 600;
+            font-size: .85rem;
+            color: #374151;
+            margin-bottom: .35rem;
+        }
+
+        .form-text {
+            font-size: .78rem;
+            color: #94a3b8;
+        }
+
+        /* ══════════════════════════════════════
+           BUTTONS
+        ══════════════════════════════════════ */
+        .btn {
+            border-radius: 9px;
+            font-weight: 600;
+            font-size: .855rem;
+            padding: .45rem 1rem;
+            transition: all .15s;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+            border-color: #1d4ed8;
+        }
+
+        .btn-success {
+            background: var(--success);
+            border-color: var(--success);
+        }
+
+        .btn-success:hover {
+            background: #15803d;
+            border-color: #15803d;
+        }
+
+        .btn-sm {
+            padding: .3rem .75rem;
+            font-size: .8rem;
+            border-radius: 7px;
+        }
+
+        .btn-lg {
+            padding: .65rem 1.5rem;
+            font-size: .95rem;
+        }
+
+        /* ══════════════════════════════════════
+           BADGES
+        ══════════════════════════════════════ */
+        .badge {
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: .72rem;
+            padding: .3em .6em;
+        }
+
+        /* ══════════════════════════════════════
+           PAGINATION
+        ══════════════════════════════════════ */
+        .pagination .page-link {
+            border-radius: 8px !important;
+            margin: 0 2px;
+            font-size: .83rem;
+            border: 1px solid #e2e8f0;
+            color: #475569;
+            font-weight: 500;
+        }
+
+        .pagination .page-link:hover {
+            background: var(--primary-light);
+            color: var(--primary);
+            border-color: var(--primary-soft);
+        }
+
+        .pagination .page-item.active .page-link {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: #fff;
+        }
+
+        /* ══════════════════════════════════════
+           ALERTS
+        ══════════════════════════════════════ */
+        .alert {
+            border-radius: var(--radius);
+            font-size: .875rem;
+            border: none;
+        }
+
+        .alert-info {
+            background: #eff6ff;
+            color: #1d4ed8;
+        }
+
+        .alert-success {
+            background: #f0fdf4;
+            color: #15803d;
+        }
+
+        .alert-warning {
+            background: #fffbeb;
+            color: #b45309;
+        }
+
+        .alert-danger {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+
+        .alert-light {
+            background: #f8fafc;
+            color: #334155;
+            border: 1px solid #e2e8f0;
+        }
+
+        /* ══════════════════════════════════════
+           TOASTS
+        ══════════════════════════════════════ */
+        .toast-container {
+            z-index: 1090;
+        }
+
+        .toast {
+            border-radius: var(--radius);
+            font-size: .875rem;
+            box-shadow: var(--shadow);
+            border: none;
+        }
+
+        /* ══════════════════════════════════════
+           FOOTER
+        ══════════════════════════════════════ */
+        footer { background: #fff; border-top: 1px solid #e2e8f0; padding: 2.5rem 2rem 1rem; font-size: .82rem; color: #64748b; }
+
+        /* ══════════════════════════════════════
+           UTILITIES
+        ══════════════════════════════════════ */
+        .text-muted {
+            color: #94a3b8 !important;
+        }
+
+        .fw-semibold {
+            font-weight: 600;
+        }
+
+        .rounded-xl {
+            border-radius: var(--radius);
+        }
+
+        /* ══════════════════════════════════════
+           RESPONSIVE
+        ══════════════════════════════════════ */
+        @media (max-width: 767px) {
+            #sidebar {
+                transform: translateX(-100%);
+            }
+
+            #sidebar.show {
+                transform: translateX(0);
+                box-shadow: 4px 0 24px rgba(0, 0, 0, .15);
+            }
+
+            #page-wrapper {
+                margin-left: 0;
+            }
+
+            #main-content {
+                padding: 1rem;
+            }
+
+            .top-navbar .search-box {
+                display: none;
+            }
+
+            .stat-card .stat-value {
+                font-size: 1.6rem;
+            }
+        }
+
+        @media (min-width: 768px) and (max-width: 1024px) {
+            :root {
+                --sidebar-width: 220px;
+            }
+
+            #main-content {
+                padding: 1.25rem 1.5rem;
+            }
+        }
+
+
+
+        /* ══ PRINT ══ */
+        @media print {
+            #sidebar, .top-navbar, .btn:not(.btn-print), nav.pagination,
+            footer, .toast-container, .no-print { display: none !important; }
+            #page-wrapper { margin: 0 !important; }
+            .card { box-shadow: none !important; border: 1px solid #ddd !important; }
+            body { background: white !important; font-size: 11pt; }
+            a { color: inherit !important; text-decoration: none !important; }
+            table { border-collapse: collapse !important; }
+            td, th { border: 1px solid #ccc !important; padding: 4px 8px !important; }
+        }
+
+                /* Dark mode */
+        [data-theme="dark"] {
+            --bs-body-bg: #0f172a;
+            --bs-body-color: #e2e8f0;
+        }
+        [data-theme="dark"] body { background: #0f172a !important; color: #e2e8f0; }
+        [data-theme="dark"] .top-navbar { background: #1e293b !important; border-color: #334155 !important; }
+        [data-theme="dark"] .brand { color: #60a5fa !important; }
+        [data-theme="dark"] #sidebar { background: #0f172a !important; }
+        [data-theme="dark"] .card { background: #1e293b !important; border-color: #334155 !important; color: #e2e8f0; }
+        [data-theme="dark"] .card-header { border-color: #334155 !important; }
+        [data-theme="dark"] body { background: #0f172a !important; }
+        [data-theme="dark"] #page-wrapper { background: #0f172a; }
+        [data-theme="dark"] .table { color: #e2e8f0; }
+        [data-theme="dark"] .table-dark th { background: #0f172a; }
+        [data-theme="dark"] .form-control, [data-theme="dark"] .form-select { background: #1e293b; border-color: #334155; color: #e2e8f0; }
+        [data-theme="dark"] .form-control:focus, [data-theme="dark"] .form-select:focus { background: #1e293b; color: #e2e8f0; }
+        [data-theme="dark"] footer { background: #fff; border-top: 1px solid #e2e8f0; padding: 2.5rem 2rem 1rem; font-size: .82rem; color: #64748b; }
+        [data-theme="dark"] .dropdown-menu { background: #1e293b; border-color: #334155; }
+        [data-theme="dark"] .dropdown-item { color: #e2e8f0; }
+        [data-theme="dark"] .dropdown-item:hover { background: #334155; }
+        [data-theme="dark"] .search-box { background: #1e293b !important; border-color: #334155 !important; }
+        [data-theme="dark"] .search-box input { color: #e2e8f0 !important; }
+        [data-theme="dark"] .user-pill { background: #1e293b !important; border-color: #334155 !important; color: #e2e8f0 !important; }
+        [data-theme="dark"] .btn-icon-nav { background: #1e293b !important; border-color: #334155 !important; color: #94a3b8 !important; }
+        [data-theme="dark"] .table-hover tbody tr:hover { background: #334155; }
+        [data-theme="dark"] .alert-light { background: #1e293b !important; border-color: #334155 !important; color: #e2e8f0 !important; }
+        @media print {
+
+            #sidebar,
+            .top-navbar,
+            .btn,
+            nav.pagination,
+            footer,
+            .toast-container {
+                display: none !important;
+            }
+
+            #page-wrapper {
+                margin: 0;
+            }
+
+            .card {
+                box-shadow: none;
+                border: 1px solid #ddd;
+            }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+
+    <!-- ── Top Navbar ── -->
+    <header class="top-navbar">
+        {% if user.is_authenticated %}
+        <button class="btn-icon-nav d-md-none border-0" id="sidebarToggle" aria-label="Toggle sidebar">
+            <i class="bi bi-list fs-5"></i>
+        </button>
+        {% endif %}
+
+        <a class="brand" href="{% url 'home' %}">
+            <span class="brand-icon"><i class="bi bi-book-half"></i></span>
+            Smart Library
+        </a>
+
+        {% if user.is_authenticated %}
+        <form class="search-box d-none d-md-flex" action="{% url 'book_list' %}" method="get">
+            <i class="bi bi-search"></i>
+            <input type="text" name="q" placeholder="Search books, authors…" autocomplete="off">
+        </form>
+        {% endif %}
+
+        <div class="nav-actions">
+            {% if user.is_authenticated %}
+            <button class="btn-icon-nav border-0" id="darkToggle" title="Toggle dark mode" onclick="toggleDark()">
+                    <i class="bi bi-moon-stars" id="darkIcon"></i>
+                </button>
+                            <div class="dropdown" id="notifDropdown">
+                <button class="btn-icon-nav border-0 position-relative no-progress" id="notifBtn"
+                    data-bs-toggle="dropdown" aria-expanded="false" title="Notifications">
+                    <i class="bi bi-bell"></i>
+                    <span id="notifBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                        style="font-size:.55rem;display:none;">0</span>
+                </button>
+                <div class="dropdown-menu dropdown-menu-end shadow-lg border-0 p-0"
+                    style="width:320px;border-radius:12px;overflow:hidden;" id="notifMenu">
+                    <div class="d-flex justify-content-between align-items-center px-3 py-2 border-bottom">
+                        <span class="fw-bold small">Notifications</span>
+                        <button class="btn btn-link btn-sm text-muted p-0 no-progress" id="markAllRead">Mark all read</button>
+                    </div>
+                    <div id="notifList" style="max-height:320px;overflow-y:auto;">
+                        <div class="text-center text-muted py-4 small">Loading...</div>
+                    </div>
+                    <div class="border-top text-center py-2">
+                        <a href="/notifications/" class="small text-primary no-progress">View all notifications</a>
+                    </div>
+                </div>
+            </div>
+            <span class="role-badge role-badge-{{ user.role }} d-none d-sm-inline">{{ user.get_role_display }}</span>
+
+            <div class="dropdown">
+                <div class="user-pill dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"
+                    style="list-style:none;" role="button">
+                    <span class="avatar">
+                        {% if user.profile_picture %}
+                        <img src="{{ user.profile_picture.url }}" alt="">
+                        {% else %}
+                        {{ user.first_name|first|upper|default:user.username|first|upper }}
+                        {% endif %}
+                    </span>
+                    <span class="d-none d-sm-inline">{% if user.get_full_name %}{{ user.get_full_name|truncatechars:18 }}{% else %}{{ user.username|truncatechars:18 }}{% endif %}</span>
+                    <i class="bi bi-chevron-down ms-1" style="font-size:.65rem; color:#94a3b8;"></i>
+                </div>
+                <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 mt-2"
+                    style="border-radius:var(--radius);min-width:200px;">
+                    <li class="px-3 py-2 border-bottom">
+                        <div class="fw-semibold small">{% if user.get_full_name %}{{ user.get_full_name }}{% else %}{{ user.username }}{% endif %}</div>
+                        <div class="text-muted" style="font-size:.75rem;">{{ user.email }}</div>
+                    </li>
+                    <li><a class="dropdown-item py-2" href="{% url 'profile' %}">
+                            <i class="bi bi-person me-2 text-primary"></i>My Profile
+                        </a></li>
+                    <li><a class="dropdown-item py-2" href="{% url 'change_password' %}">
+                            <i class="bi bi-key me-2 text-warning"></i>Change Password
+                        </a></li>
+                    <li>
+                        <hr class="dropdown-divider my-1">
+                    </li>
+                    <li><a class="dropdown-item py-2 text-danger" href="{% url 'logout' %}">
+                            <i class="bi bi-box-arrow-right me-2"></i>Logout
+                        </a></li>
+                </ul>
+            </div>
+            {% else %}
+            <a href="{% url 'login' %}" class="btn btn-sm btn-outline-primary">Login</a>
+            <a href="{% url 'register' %}" class="btn btn-sm btn-primary">Register</a>
+            {% endif %}
+        </div>
+    </header>
+
+    <!-- ── Sidebar ── -->
+    {% if user.is_authenticated %}
+    <nav id="sidebar" aria-label="Main navigation">
+        {% include 'accounts/sidebar_nav.html' %}
+    </nav>
+    <div id="sidebarOverlay" class="d-none" style="position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:1039;"
+        onclick="closeSidebar()"></div>
+    {% endif %}
+
+    <!-- ── Page Wrapper ── -->
+    <div id="page-wrapper" {% if not user.is_authenticated %}class="no-sidebar" {% endif %}>
+        <main id="main-content">
+
+            <!-- Toast notifications -->
+            {% if messages %}
+            <div class="toast-container position-fixed top-0 end-0 p-3" style="margin-top:70px;">
+                {% for message in messages %}
+                <div class="toast align-items-center border-0 show mb-2
+                {% if message.tags == 'error' %}text-bg-danger
+                {% elif message.tags == 'warning' %}text-bg-warning text-dark
+                {% elif message.tags == 'success' %}text-bg-success
+                {% else %}text-bg-primary{% endif %}" role="alert" data-bs-autohide="true" data-bs-delay="4500">
+                    <div class="d-flex">
+                        <div class="toast-body fw-500">{{ message }}</div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto"
+                            data-bs-dismiss="toast"></button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {% block content %}{% endblock %}
+        </main>
+
+                <footer>
+            <div class="row g-4 mb-4">
+                <!-- Brand -->
+                <div class="col-md-4">
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <div class="rounded-2 bg-primary d-flex align-items-center justify-content-center text-white" style="width:32px;height:32px;">
+                            <i class="bi bi-book-half"></i>
+                        </div>
+                        <span class="fw-bold text-dark" style="font-size:1rem;">Smart Library</span>
+                    </div>
+                    <p class="text-muted small mb-3">A modern library management system for students, librarians and administrators.</p>
+                    <div class="d-flex gap-2">
+                        <span class="badge" style="background:#eff6ff;color:#2563eb;font-size:.75rem;"><i class="bi bi-mortarboard me-1"></i>Students</span>
+                        <span class="badge" style="background:#f0fdf4;color:#16a34a;font-size:.75rem;"><i class="bi bi-person-badge me-1"></i>Librarians</span>
+                        <span class="badge" style="background:#fef2f2;color:#dc2626;font-size:.75rem;"><i class="bi bi-shield-lock me-1"></i>Admins</span>
+                    </div>
+                </div>
+                <!-- Quick Links -->
+                <div class="col-md-2 col-6">
+                    <h6 class="fw-bold mb-3" style="font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;color:#374151;">Quick Links</h6>
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-1"><a href="{% url 'home' %}" class="text-muted text-decoration-none small"><i class="bi bi-house me-1"></i>Home</a></li>
+                        <li class="mb-1"><a href="{% url 'book_list' %}" class="text-muted text-decoration-none small"><i class="bi bi-journals me-1"></i>Book Catalog</a></li>
+                        <li class="mb-1"><a href="{% url 'about' %}" class="text-muted text-decoration-none small"><i class="bi bi-info-circle me-1"></i>About</a></li>
+                        {% if user.is_authenticated %}
+                        <li class="mb-1"><a href="{% url 'dashboard' %}" class="text-muted text-decoration-none small"><i class="bi bi-grid-1x2 me-1"></i>Dashboard</a></li>
+                        {% else %}
+                        <li class="mb-1"><a href="{% url 'login' %}" class="text-muted text-decoration-none small"><i class="bi bi-box-arrow-in-right me-1"></i>Login</a></li>
+                        <li class="mb-1"><a href="{% url 'register' %}" class="text-muted text-decoration-none small"><i class="bi bi-person-plus me-1"></i>Register</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+                <!-- For Students -->
+                <div class="col-md-3 col-6">
+                    <h6 class="fw-bold mb-3" style="font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;color:#374151;">For Students</h6>
+                    <ul class="list-unstyled mb-0">
+                        {% if user.is_authenticated %}
+                        <li class="mb-1"><a href="{% url 'my_borrowings' %}" class="text-muted text-decoration-none small"><i class="bi bi-bookmark-check me-1"></i>My Borrowings</a></li>
+                        <li class="mb-1"><a href="{% url 'my_reservations' %}" class="text-muted text-decoration-none small"><i class="bi bi-bookmark-star me-1"></i>My Reservations</a></li>
+                        <li class="mb-1"><a href="{% url 'profile' %}" class="text-muted text-decoration-none small"><i class="bi bi-person me-1"></i>My Profile</a></li>
+                        {% else %}
+                        <li class="mb-1 text-muted small"><i class="bi bi-bookmark-check me-1"></i>Borrow Books</li>
+                        <li class="mb-1 text-muted small"><i class="bi bi-star me-1"></i>Rate &amp; Review</li>
+                        <li class="mb-1 text-muted small"><i class="bi bi-book-fill me-1"></i>Read Online</li>
+                        {% endif %}
+                    </ul>
+                </div>
+                <!-- Contact -->
+                <div class="col-md-3">
+                    <h6 class="fw-bold mb-3" style="font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;color:#374151;">Contact</h6>
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2 d-flex align-items-center gap-2">
+                            <i class="bi bi-geo-alt text-primary" style="font-size:.9rem;"></i>
+                            <span class="text-muted small">Addis Ababa, Ethiopia</span>
+                        </li>
+                        <li class="mb-2 d-flex align-items-center gap-2">
+                            <i class="bi bi-envelope text-primary" style="font-size:.9rem;"></i>
+                            <span class="text-muted small">library@smartlib.et</span>
+                        </li>
+                        <li class="mb-2 d-flex align-items-center gap-2">
+                            <i class="bi bi-clock text-primary" style="font-size:.9rem;"></i>
+                            <span class="text-muted small">Mon–Fri, 8am – 6pm</span>
+                        </li>
+                        <li class="d-flex align-items-center gap-2">
+                            <i class="bi bi-telephone text-primary" style="font-size:.9rem;"></i>
+                            <span class="text-muted small">+251 911 000 000</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <!-- Bottom bar -->
+            <div class="border-top pt-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <span class="text-muted small">&copy; 2026 Smart Library. All rights reserved.</span>
+                <span class="text-muted small">Built with <i class="bi bi-heart-fill text-danger" style="font-size:.7rem;"></i> using Django &amp; Bootstrap 5</span>
+            </div>
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Auto-show toasts
+        document.querySelectorAll('.toast').forEach(el => new bootstrap.Toast(el).show());
+
+        // Sidebar toggle (mobile)
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        const toggler = document.getElementById('sidebarToggle');
+
+        toggler?.addEventListener('click', () => {
+            sidebar?.classList.toggle('show');
+            overlay?.classList.toggle('d-none');
+        });
+
+        function closeSidebar() {
+            sidebar?.classList.remove('show');
+            overlay?.classList.add('d-none');
+        }
+
+        // Close sidebar on nav-link click (mobile)
+        sidebar?.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth < 768) closeSidebar();
+            });
+        });
+
+        // Dark mode
+        function toggleDark() {
+            const html = document.documentElement;
+            const isDark = html.getAttribute('data-theme') === 'dark';
+            html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+            document.getElementById('darkIcon').className = isDark ? 'bi bi-moon-stars' : 'bi bi-sun';
+            localStorage.setItem('theme', isDark ? 'light' : 'dark');
+        }
+        // Apply saved theme on load
+        (function() {
+            const saved = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', saved);
+            const icon = document.getElementById('darkIcon');
+            if (icon) icon.className = saved === 'dark' ? 'bi bi-sun' : 'bi bi-moon-stars';
+        })();
+    </script>
+    {% block extra_js %}{% endblock %}
+
+    <!-- NProgress -->
+    <script src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.js"></script>
+    <script>
+        // 1. Loading bar on navigation
+        NProgress.configure({ showSpinner: false, speed: 300 });
+        document.addEventListener('click', function(e) {
+            var a = e.target.closest('a[href]');
+            if (a && !a.href.startsWith('#') && !a.href.startsWith('javascript') &&
+                a.target !== '_blank' && !a.classList.contains('no-progress')) {
+                NProgress.start();
+            }
+        });
+        document.addEventListener('submit', function(e) {
+            var btn = e.target.querySelector('[type=submit]');
+            if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>' + btn.innerHTML; }
+            NProgress.start();
+        });
+        window.addEventListener('pageshow', function() { NProgress.done(); });
+        window.addEventListener('load', function() { NProgress.done(); });
+
+        // 2. Logout confirmation modal
+        document.querySelectorAll('a[href*="logout"]').forEach(function(el) {
+            el.addEventListener('click', function(e) {
+                e.preventDefault();
+                var href = this.href;
+                if (confirm('Are you sure you want to logout?')) {
+                    NProgress.start();
+                    window.location.href = href;
+                }
+            });
+        });
+
+        // 3. Export button loading state
+        document.querySelectorAll('a[href*="export"], a[href*="pdf"], a[href*="csv"]').forEach(function(el) {
+            el.addEventListener('click', function() {
+                var orig = this.innerHTML;
+                this.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Generating...';
+                var self = this;
+                setTimeout(function() { self.innerHTML = orig; }, 4000);
+            });
+        });
+
+        // 4. Live search suggestions (navbar)
+        var searchInput = document.querySelector('.search-box input[name="q"]');
+        var suggestBox = null;
+        if (searchInput) {
+            suggestBox = document.createElement('div');
+            suggestBox.id = 'searchSuggestions';
+            suggestBox.style.cssText = 'position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #e2e8f0;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.12);z-index:2000;max-height:320px;overflow-y:auto;display:none;';
+            searchInput.parentElement.style.position = 'relative';
+            searchInput.parentElement.appendChild(suggestBox);
+
+            var searchTimer;
+            searchInput.addEventListener('input', function() {
+                clearTimeout(searchTimer);
+                var q = this.value.trim();
+                if (q.length < 2) { suggestBox.style.display = 'none'; return; }
+                searchTimer = setTimeout(function() {
+                    fetch('/books/search-suggest/?q=' + encodeURIComponent(q))
+                        .then(function(r) { return r.json(); })
+                        .then(function(data) {
+                            if (!data.results || data.results.length === 0) { suggestBox.style.display = 'none'; return; }
+                            suggestBox.innerHTML = data.results.map(function(b) {
+                                return '<a href="/books/' + b.id + '/" class="d-flex align-items-center gap-2 px-3 py-2 text-decoration-none text-dark" style="border-bottom:1px solid #f1f5f9;font-size:.85rem;">' +
+                                    '<i class="bi bi-book text-primary" style="font-size:.8rem;"></i>' +
+                                    '<div><div class="fw-semibold">' + b.title + '</div><div class="text-muted" style="font-size:.75rem;">' + b.author + '</div></div>' +
+                                    '</a>';
+                            }).join('');
+                            suggestBox.style.display = 'block';
+                        }).catch(function() { suggestBox.style.display = 'none'; });
+                }, 300);
+            });
+            document.addEventListener('click', function(e) {
+                if (!searchInput.parentElement.contains(e.target)) suggestBox.style.display = 'none';
+            });
+        }
+    </script>
+
+    <!-- NProgress -->
+    <script src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.js"></script>
+    <script>
+        NProgress.configure({ showSpinner: false, speed: 300 });
+        document.addEventListener('click', function(e) {
+            var a = e.target.closest('a[href]');
+            if (a && !a.href.startsWith('#') && !a.href.startsWith('javascript') && a.target !== '_blank' && !a.classList.contains('no-progress')) { NProgress.start(); }
+        });
+        document.addEventListener('submit', function(e) {
+            var btn = e.target.querySelector('[type=submit]');
+            if (btn && !btn.disabled) { var orig = btn.innerHTML; btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>' + orig; }
+            NProgress.start();
+        });
+        window.addEventListener('pageshow', function() { NProgress.done(); });
+        window.addEventListener('load', function() { NProgress.done(); });
+        document.querySelectorAll('a[href*="logout"]').forEach(function(el) {
+            el.addEventListener('click', function(e) {
+                e.preventDefault(); var href = this.href;
+                if (confirm('Are you sure you want to logout?')) { NProgress.start(); window.location.href = href; }
+            });
+        });
+        document.querySelectorAll('a[href*="export"], a[href*="/pdf"]').forEach(function(el) {
+            el.addEventListener('click', function() {
+                var orig = this.innerHTML; this.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Generating...';
+                var self = this; setTimeout(function() { self.innerHTML = orig; }, 5000);
+            });
+        });
+        var searchInput = document.querySelector('.search-box input[name="q"]');
+        if (searchInput) {
+            var suggestBox = document.createElement('div');
+            suggestBox.style.cssText = 'position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #e2e8f0;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.12);z-index:2000;max-height:320px;overflow-y:auto;display:none;';
+            searchInput.parentElement.style.position = 'relative';
+            searchInput.parentElement.appendChild(suggestBox);
+            var t; searchInput.addEventListener('input', function() {
+                clearTimeout(t); var q = this.value.trim();
+                if (q.length < 2) { suggestBox.style.display = 'none'; return; }
+                t = setTimeout(function() {
+                    fetch('/books/search-suggest/?q=' + encodeURIComponent(q))
+                        .then(function(r) { return r.json(); })
+                        .then(function(data) {
+                            if (!data.results || !data.results.length) { suggestBox.style.display = 'none'; return; }
+                            suggestBox.innerHTML = data.results.map(function(b) {
+                                return '<a href="/books/' + b.id + '/" class="d-flex align-items-center gap-2 px-3 py-2 text-decoration-none text-dark" style="border-bottom:1px solid #f1f5f9;font-size:.85rem;"><i class="bi bi-book text-primary" style="font-size:.8rem;flex-shrink:0;"></i><div><div class="fw-semibold">' + b.title + '</div><div class="text-muted" style="font-size:.75rem;">' + b.author + '</div></div></a>';
+                            }).join('');
+                            suggestBox.style.display = 'block';
+                        }).catch(function() { suggestBox.style.display = 'none'; });
+                }, 300);
+            });
+            document.addEventListener('click', function(e) { if (!searchInput.parentElement.contains(e.target)) suggestBox.style.display = 'none'; });
+        }
+
+        // Notification bell
+        function loadNotifications() {
+            fetch('/notifications/json/')
+                .then(r => r.json())
+                .then(data => {
+                    var badge = document.getElementById('notifBadge');
+                    var list = document.getElementById('notifList');
+                    if (!badge || !list) return;
+                    if (data.count > 0) {
+                        badge.textContent = data.count;
+                        badge.style.display = 'inline';
+                    } else {
+                        badge.style.display = 'none';
+                    }
+                    if (data.notifications.length === 0) {
+                        list.innerHTML = '<div class="text-center text-muted py-4 small"><i class="bi bi-bell-slash d-block fs-3 mb-1"></i>No new notifications</div>';
+                        return;
+                    }
+                    var colors = {info:'#2563eb',warning:'#d97706',danger:'#dc2626',success:'#16a34a'};
+                    var icons = {info:'info-circle',warning:'clock',danger:'exclamation-triangle',success:'check-circle'};
+                    list.innerHTML = data.notifications.map(function(n) {
+                        return '<a href="' + (n.link || '#') + '" class="d-flex align-items-start gap-2 px-3 py-2 text-decoration-none text-dark border-bottom no-progress" style="font-size:.83rem;">' +
+                            '<div class="rounded-circle d-flex align-items-center justify-content-center text-white flex-shrink-0" style="width:30px;height:30px;background:' + (colors[n.type]||'#2563eb') + ';margin-top:2px;">' +
+                            '<i class="bi bi-' + (icons[n.type]||'info-circle') + '" style="font-size:.7rem;"></i></div>' +
+                            '<div><div class="fw-semibold" style="font-size:.8rem;">' + n.title + '</div>' +
+                            '<div class="text-muted" style="font-size:.75rem;">' + n.message + '</div>' +
+                            '<div class="text-muted" style="font-size:.7rem;">' + n.created_at + '</div></div></a>';
+                    }).join('');
+                }).catch(function() {});
+        }
+        document.getElementById('notifBtn')?.addEventListener('click', loadNotifications);
+        document.getElementById('markAllRead')?.addEventListener('click', function(e) {
+            e.preventDefault();
+            fetch('/notifications/read/', {method:'POST', headers:{'X-CSRFToken': document.cookie.match(/csrftoken=([^;]+)/)?.[1]||''}})
+                .then(function() {
+                    document.getElementById('notifBadge').style.display = 'none';
+                    loadNotifications();
+                });
+        });
+        // Auto-load count on page load
+        setTimeout(loadNotifications, 500);
+    </script>

@@ -1,0 +1,276 @@
+{% extends 'accounts/base.html' %}
+{% block title %}Admin Dashboard – LibraryMS{% endblock %}
+
+{% block content %}
+<h4 class="fw-bold mb-4"><i class="bi bi-speedometer2 me-2"></i>Admin Dashboard
+    <a href="{% url 'reports' %}" class="btn btn-sm btn-outline-secondary ms-3">
+        <i class="bi bi-bar-chart-line me-1"></i>Full Reports
+    </a>
+    <a href="{% url 'export_report_pdf' %}" class="btn btn-sm btn-danger ms-1">
+        <i class="bi bi-file-earmark-pdf me-1"></i>PDF
+    </a>
+    <a href="{% url 'trigger_backup' %}" class="btn btn-sm btn-outline-primary ms-1">
+        <i class="bi bi-database-fill-down me-1"></i>Backup
+    </a>
+    <a href="{% url 'send_reminders' %}" class="btn btn-sm btn-outline-success ms-1">
+        <i class="bi bi-bell me-1"></i>Send Reminders
+    </a>
+</h4>
+
+<!-- Stat Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-lg-2">
+        <div class="card p-3 text-center border-start border-primary border-4">
+            <div class="fs-3 fw-bold text-primary">{{ total_books }}</div>
+            <div class="text-muted small">Total Books</div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-2">
+        <div class="card p-3 text-center border-start border-success border-4">
+            <div class="fs-3 fw-bold text-success">{{ available_books }}</div>
+            <div class="text-muted small">Available</div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-2">
+        <div class="card p-3 text-center border-start border-warning border-4">
+            <div class="fs-3 fw-bold text-warning">{{ total_borrowed }}</div>
+            <div class="text-muted small">Borrowed</div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-2">
+        <div class="card p-3 text-center border-start border-danger border-4">
+            <div class="fs-3 fw-bold text-danger">{{ overdue_count }}</div>
+            <div class="text-muted small">Overdue</div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-2">
+        <div class="card p-3 text-center border-start border-info border-4">
+            <div class="fs-3 fw-bold text-info">{{ total_members }}</div>
+            <div class="text-muted small">Members</div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-2">
+        <div class="card p-3 text-center border-start border-dark border-4">
+            <div class="fs-3 fw-bold">ETB {{ unpaid_fines }}</div>
+            <div class="text-muted small">Unpaid Fines</div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts row -->
+<div class="row g-3 mb-4">
+    <div class="col-md-5">
+        <div class="card p-3">
+            <h6 class="fw-bold mb-3">Book Status Overview</h6>
+            <canvas id="statusChart" height="220"></canvas>
+        </div>
+    </div>
+    <div class="col-md-7">
+        <div class="card p-3">
+            <h6 class="fw-bold mb-3">Books by Category</h6>
+            <canvas id="categoryChart" height="220"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Advanced Analytics row -->
+<div class="row g-3 mb-4">
+    <div class="col-md-8">
+        <div class="card p-3">
+            <h6 class="fw-bold mb-3"><i class="bi bi-graph-up me-2 text-primary"></i>Monthly Borrowing Trend</h6>
+            <canvas id="monthlyChart" height="160"></canvas>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card p-3 h-100">
+            <h6 class="fw-bold mb-3"><i class="bi bi-person-lines-fill me-2 text-success"></i>Top Authors</h6>
+            {% for a in top_authors %}
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="small text-truncate" style="max-width:160px;">{{ a.author }}</span>
+                <span class="badge bg-primary">{{ a.borrow_count }}</span>
+            </div>
+            {% empty %}
+            <p class="text-muted small">No data yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Rarely borrowed -->
+{% if rarely_borrowed %}
+<div class="card mb-4">
+    <div class="card-header fw-bold text-muted"><i class="bi bi-book me-2"></i>Books Never Borrowed</div>
+    <div class="table-responsive">
+        <table class="table table-sm mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Title</th>
+                    <th>Author</th>
+                    <th>Category</th>
+                    <th>Copies</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for book in rarely_borrowed %}
+                <tr>
+                    <td><a href="{% url 'book_detail' book.pk %}" class="text-decoration-none">{{
+                            book.title|truncatechars:35 }}</a></td>
+                    <td class="text-muted small">{{ book.author }}</td>
+                    <td class="text-muted small">{{ book.category|default:"—" }}</td>
+                    <td><span class="badge bg-secondary">{{ book.total_copies }}</span></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<!-- Tables row -->
+<div class="row g-3">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span class="fw-bold">Recent Borrows</span>
+                <a href="{% url 'borrow_list' %}" class="btn btn-sm btn-outline-dark">View All</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-sm table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Member</th>
+                            <th>Book</th>
+                            <th>Due</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for rec in recent_borrows %}
+                        <tr>
+                            <td class="small">{{ rec.member.get_full_name|default:rec.member.username|truncatechars:18
+                                }}</td>
+                            <td class="small">{{ rec.book.title|truncatechars:20 }}</td>
+                            <td>
+                                {% if rec.is_overdue %}
+                                <span class="small text-danger fw-bold">{{ rec.due_date }}</span>
+                                {% else %}
+                                <span class="small">{{ rec.due_date }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if rec.status == 'borrowed' %}
+                                <span class="badge bg-primary">Borrowed</span>
+                                {% elif rec.status == 'overdue' %}
+                                <span class="badge bg-danger">Overdue</span>
+                                {% else %}
+                                <span class="badge bg-success">Returned</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center text-muted py-3">No records.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span class="fw-bold text-danger"><i class="bi bi-exclamation-triangle me-1"></i>Overdue Books</span>
+                <a href="{% url 'reports' %}" class="btn btn-sm btn-outline-danger">Full Report</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-sm table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Member</th>
+                            <th>Book</th>
+                            <th>Due</th>
+                            <th>Days</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for rec in overdue_records %}
+                        <tr class="table-danger">
+                            <td class="small">{{ rec.member.get_full_name|default:rec.member.username|truncatechars:18
+                                }}</td>
+                            <td class="small">{{ rec.book.title|truncatechars:20 }}</td>
+                            <td class="small fw-bold">{{ rec.due_date }}</td>
+                            <td><span class="badge bg-danger">{{ rec.days_overdue }}d</span></td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center text-muted py-3">No overdue books.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+    // Status donut chart
+    new Chart(document.getElementById('statusChart'), {
+        type: 'doughnut',
+        data: {
+            labels: ['Available', 'Borrowed', 'Overdue'],
+            datasets: [{
+                data: [{{ available_books }}, {{ total_borrowed }}, {{ overdue_count }}],
+        backgroundColor: ['#198754', '#0d6efd', '#dc3545'],
+        borderWidth: 2,
+            }]
+        },
+        options: { plugins: { legend: { position: 'bottom' } }, cutout: '65%' }
+    });
+
+    // Monthly trend chart
+    new Chart(document.getElementById('monthlyChart'), {
+        type: 'line',
+        data: {
+            labels: [{% for l in monthly_labels %}'{{ l }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
+        datasets: [{
+            label: 'Borrows',
+            data: [{% for c in monthly_counts %}{{ c }}{% if not forloop.last %}, {% endif %} {% endfor %}],
+    borderColor: '#2563eb',
+        backgroundColor: 'rgba(37,99,235,.1)',
+            borderWidth: 2,
+                fill: true,
+                    tension: 0.4,
+                        pointBackgroundColor: '#2563eb',
+            }]
+        },
+    options: {
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+    }
+    });
+    new Chart(document.getElementById('categoryChart'), {
+        type: 'bar',
+        data: {
+            labels: [{% for c in categories %}'{{ c.name }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
+        datasets: [{
+            label: 'Books',
+            data: [{% for c in categories %}{{ c.book_count }}{% if not forloop.last %}, {% endif %} {% endfor %}],
+    backgroundColor: '#0d6efd88',
+        borderColor: '#0d6efd',
+            borderWidth: 1,
+                borderRadius: 4,
+            }]
+        },
+    options: {
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+    }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends 'accounts/base.html' %}
+{% block title %}Reserve {{ book.title }} – LibraryMS{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card p-4 text-center">
+            {% if book.cover_url %}
+            <img src="{{ book.cover_url }}" class="mx-auto mb-3 rounded"
+                style="height:160px;width:110px;object-fit:cover;" alt="{{ book.title }}">
+            {% else %}
+            <i class="bi bi-bookmark-plus text-warning mb-3" style="font-size:3.5rem;"></i>
+            {% endif %}
+            <h5 class="fw-bold">{{ book.title }}</h5>
+            <p class="text-muted mb-1">{{ book.author }}</p>
+            <span class="badge bg-danger mb-3">Currently Unavailable</span>
+            <div class="alert alert-info text-start py-2 mb-4">
+                <i class="bi bi-info-circle me-2"></i>
+                By reserving, you'll be notified when this book becomes available. Your reservation will be held for
+                <strong>3 days</strong>.
+            </div>
+            <form method="post" class="d-flex gap-3 justify-content-center">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-warning px-4 fw-semibold">
+                    <i class="bi bi-bookmark-plus me-2"></i>Confirm Reservation
+                </button>
+                <a href="{% url 'book_detail' book.pk %}" class="btn btn-outline-secondary px-4">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,124 @@
+﻿{% extends 'accounts/base.html' %}
+{% block title %}Register – Smart Library{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center py-4">
+    <div class="col-md-8 col-lg-7">
+        <div class="card p-4 shadow">
+            <div class="text-center mb-4">
+                <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-success mb-3"
+                    style="width:64px;height:64px;">
+                    <i class="bi bi-person-plus text-white fs-2"></i>
+                </div>
+                <h4 class="fw-bold mb-1">Create Account</h4>
+                <p class="text-muted small mb-0">Register as a library member</p>
+            </div>
+            <form method="post" novalidate>
+                {% csrf_token %}
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">First Name</label>
+                        {{ form.first_name }}
+                        {% if form.first_name.errors %}<div class="text-danger small mt-1">{{ form.first_name.errors.0
+                            }}</div>{% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Last Name</label>
+                        {{ form.last_name }}
+                        {% if form.last_name.errors %}<div class="text-danger small mt-1">{{ form.last_name.errors.0 }}
+                        </div>{% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Username</label>
+                        {{ form.username }}
+                        {% if form.username.errors %}<div class="text-danger small mt-1">{{ form.username.errors.0 }}
+                        </div>{% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Email</label>
+                        {{ form.email }}
+                        {% if form.email.errors %}<div class="text-danger small mt-1">{{ form.email.errors.0 }}</div>{% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Phone</label>
+                        {{ form.phone }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Date of Birth</label>
+                        {{ form.date_of_birth }}
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Address</label>
+                        {{ form.address }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Password</label>
+                        {{ form.password1 }}
+                        <div id="pwdStrength" class="mt-1" style="display:none;">
+                            <div class="progress" style="height:4px;">
+                                <div id="pwdBar" class="progress-bar" style="width:0%;transition:width .3s;"></div>
+                            </div>
+                            <small id="pwdLabel" class="text-muted"></small>
+                        </div>
+                        {% if form.password1.errors %}<div class="text-danger small mt-1">{{ form.password1.errors.0 }}
+                        </div>{% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Confirm Password</label>
+                        {{ form.password2 }}
+                        {% if form.password2.errors %}<div class="text-danger small mt-1">{{ form.password2.errors.0 }}
+                        </div>{% endif %}
+                    </div>
+                </div>
+                <div class="d-grid mt-4">
+                    <button type="submit" class="btn btn-success btn-lg fw-semibold">
+                        <i class="bi bi-person-check me-2"></i>Create Account
+                    </button>
+                </div>
+            </form>
+            <hr class="my-3">
+            <p class="text-center mb-0 small">
+                Already have an account? <a href="{% url 'login' %}" class="text-primary fw-semibold">Login here</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.querySelector('input[name="first_name"]')?.focus();
+    document.querySelectorAll('input, select, textarea').forEach(el => {
+        if (!el.classList.contains('btn') && el.type !== 'submit') el.classList.add('form-control');
+    });
+
+    // Password strength indicator
+    const pwdInput = document.querySelector('input[name="password1"]');
+    const bar = document.getElementById('pwdBar');
+    const label = document.getElementById('pwdLabel');
+    const wrap = document.getElementById('pwdStrength');
+
+    if (pwdInput) {
+        pwdInput.addEventListener('input', function () {
+            const val = this.value;
+            wrap.style.display = val ? 'block' : 'none';
+            let score = 0;
+            if (val.length >= 8) score++;
+            if (/[A-Z]/.test(val)) score++;
+            if (/[0-9]/.test(val)) score++;
+            if (/[^A-Za-z0-9]/.test(val)) score++;
+            const levels = [
+                { pct: '25%', cls: 'bg-danger', text: 'Weak' },
+                { pct: '50%', cls: 'bg-warning', text: 'Fair' },
+                { pct: '75%', cls: 'bg-info', text: 'Good' },
+                { pct: '100%', cls: 'bg-success', text: 'Strong' },
+            ];
+            const lvl = levels[Math.max(0, score - 1)];
+            bar.style.width = lvl.pct;
+            bar.className = 'progress-bar ' + lvl.cls;
+            label.textContent = lvl.text;
+            label.className = 'small ' + lvl.cls.replace('bg-', 'text-');
+        });
+    }
+</script>
+{% endblock %}

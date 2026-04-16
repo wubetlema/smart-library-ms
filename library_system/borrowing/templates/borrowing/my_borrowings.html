@@ -1,0 +1,163 @@
+﻿{% extends 'accounts/base.html' %}
+{% block title %}My Borrowings – LibraryMS{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb" style="font-size:.82rem;">
+        <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
+        <li class="breadcrumb-item active">My Borrowings</li>
+    </ol>
+</nav>
+<div class="d-flex align-items-center gap-3 mb-4">
+    <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center text-white"
+        style="width:44px;height:44px;">
+        <i class="bi bi-bookmark-check fs-5"></i>
+    </div>
+    <div>
+        <h5 class="fw-bold mb-0">My Borrowing History</h5>
+        <p class="text-muted small mb-0">Track your borrowed books, due dates and fines</p>
+    </div>
+</div>
+
+<!-- ── Overdue Alert Banner ── -->
+{% if overdue_count > 0 %}
+<div class="alert d-flex align-items-center gap-3 mb-4 p-3"
+    style="background:#fef2f2;border:1px solid #fecaca;border-radius:12px;">
+    <i class="bi bi-exclamation-triangle-fill text-danger fs-4 flex-shrink-0"></i>
+    <div>
+        <div class="fw-bold text-danger">You have {{ overdue_count }} overdue book{{ overdue_count|pluralize }}!</div>
+        <div class="small text-danger" style="opacity:.85;">Please return them as soon as possible to avoid additional
+            fines (ETB 5/day).</div>
+    </div>
+</div>
+{% endif %}
+
+<!-- ── Due Soon Alert ── -->
+{% if due_soon_count > 0 %}
+<div class="alert d-flex align-items-center gap-3 mb-4 p-3"
+    style="background:#fffbeb;border:1px solid #fde68a;border-radius:12px;">
+    <i class="bi bi-clock-history text-warning fs-4 flex-shrink-0"></i>
+    <div>
+        <div class="fw-bold" style="color:#b45309;">{{ due_soon_count }} book{{ due_soon_count|pluralize }} due within 3
+            days</div>
+        <div class="small" style="color:#b45309;opacity:.85;">Return soon to avoid late fines.</div>
+    </div>
+</div>
+{% endif %}
+
+<!-- ── Summary Cards ── -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="card p-3 text-center border-0" style="background:linear-gradient(135deg,#2563eb,#3d8bfd);">
+            <div class="fs-3 fw-bold text-white">{{ total_count }}</div>
+            <div class="text-white-50 small">Total Borrowed</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card p-3 text-center border-0" style="background:linear-gradient(135deg,#16a34a,#28c76f);">
+            <div class="fs-3 fw-bold text-white">{{ active_count }}</div>
+            <div class="text-white-50 small">Currently Active</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card p-3 text-center border-0" style="background:linear-gradient(135deg,#dc2626,#ff6b7a);">
+            <div class="fs-3 fw-bold text-white">{{ overdue_count }}</div>
+            <div class="text-white-50 small">Overdue</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card p-3 text-center border-0" style="background:linear-gradient(135deg,#6f42c1,#9b6dff);">
+            <div class="fs-3 fw-bold text-white">{{ returned_count }}</div>
+            <div class="text-white-50 small">Returned</div>
+        </div>
+    </div>
+</div>
+
+<!-- ── Borrowing Table ── -->
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-table me-2 text-primary"></i>All Borrowings</span>
+        <a href="{% url 'book_list' %}" class="btn btn-sm btn-primary">
+            <i class="bi bi-journals me-1"></i>Browse Books
+        </a>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead class="table-dark">
+                <tr>
+                    <th>#</th>
+                    <th>Book</th>
+                    <th>Borrowed</th>
+                    <th>Due Date</th>
+                    <th>Returned</th>
+                    <th>Status</th>
+                    <th>Fine</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for rec in page_obj %}
+                <tr
+                    class="{% if rec.status == 'overdue' %}table-danger{% elif rec.status == 'returned' %}table-light{% endif %}">
+                    <td class="text-muted small">{{ forloop.counter }}</td>
+                    <td>
+                        <a href="{% url 'book_detail' rec.book.pk %}"
+                            class="fw-semibold text-decoration-none text-dark">
+                            {{ rec.book.title }}
+                        </a>
+                        <div class="text-muted" style="font-size:.75rem;">{{ rec.book.author }}</div>
+                    </td>
+                    <td class="small">{{ rec.borrowed_date }}</td>
+                    <td class="small">
+                        {% if rec.status == 'overdue' %}
+                        <span class="text-danger fw-bold">{{ rec.due_date }}</span>
+                        <div class="text-danger" style="font-size:.72rem;">{{ rec.days_overdue }} day{{
+                            rec.days_overdue|pluralize }} overdue</div>
+                        {% elif rec.status == 'borrowed' and rec.is_due_soon %}
+                        <span class="fw-semibold" style="color:#b45309;">{{ rec.due_date }}</span>
+                        <span class="badge ms-1" style="background:#fde68a;color:#b45309;font-size:.65rem;">Due in {{
+                            rec.days_until_due }}d</span>
+                        {% else %}
+                        {{ rec.due_date }}
+                        {% endif %}
+                    </td>
+                    <td class="small">{{ rec.returned_date|default:"—" }}</td>
+                    <td>
+                        {% if rec.status == 'borrowed' %}
+                        <span class="badge bg-primary">Borrowed</span>
+                        {% elif rec.status == 'overdue' %}
+                        <span class="badge bg-danger">Overdue</span>
+                        {% else %}
+                        <span class="badge bg-success">Returned</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if rec.fine_amount > 0 %}
+                        <span class="text-danger fw-semibold small">ETB {{ rec.fine_amount }}</span>
+                        {% if rec.fine_paid %}
+                        <i class="bi bi-check-circle-fill text-success ms-1" title="Paid"></i>
+                        {% else %}
+                        <span class="badge ms-1"
+                            style="background:#fde68a;color:#b45309;font-size:.65rem;">Unpaid</span>
+                        {% endif %}
+                        {% else %}
+                        <span class="text-muted">—</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center text-muted py-5">
+                        <i class="bi bi-bookmark fs-2 d-block mb-2 text-muted"></i>
+                        No borrowing history yet.
+                        <a href="{% url 'book_list' %}" class="d-block mt-2 small">Browse books to get started</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% include 'includes/smart_pagination.html' %}
+{% endblock %}

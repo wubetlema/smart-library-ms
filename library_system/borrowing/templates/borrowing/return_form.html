@@ -1,0 +1,81 @@
+{% extends 'accounts/base.html' %}
+{% block title %}Return Book – LibraryMS{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <div class="card p-4">
+            <h5 class="fw-bold mb-4"><i class="bi bi-arrow-return-left me-2"></i>Return Book</h5>
+
+            <!-- Record summary -->
+            <div class="alert alert-light border mb-4">
+                <div class="row g-2">
+                    <div class="col-sm-6">
+                        <small class="text-muted d-block">Book</small>
+                        <strong>{{ record.book.title }}</strong>
+                    </div>
+                    <div class="col-sm-6">
+                        <small class="text-muted d-block">Member</small>
+                        <strong>{{ record.member.get_full_name|default:record.member.username }}</strong>
+                    </div>
+                    <div class="col-sm-6">
+                        <small class="text-muted d-block">Borrowed</small>
+                        {{ record.borrowed_date }}
+                    </div>
+                    <div class="col-sm-6">
+                        <small class="text-muted d-block">Due Date</small>
+                        {% if record.is_overdue %}
+                        <span class="text-danger fw-bold">{{ record.due_date }}</span>
+                        {% else %}
+                        <span>{{ record.due_date }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% if fine > 0 %}
+                <div class="mt-3 p-2 bg-danger bg-opacity-10 rounded border border-danger">
+                    <i class="bi bi-exclamation-triangle-fill text-danger me-2"></i>
+                    <strong class="text-danger">Overdue Fine: ETB {{ fine }}</strong>
+                    <span class="text-muted small ms-2">({{ record.days_overdue }} day{{ record.days_overdue|pluralize
+                        }} overdue)</span>
+                </div>
+                {% endif %}
+            </div>
+
+            <form method="post" novalidate>
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label">Return Date</label>
+                    {{ form.returned_date }}
+                    {% if form.returned_date.errors %}
+                    <div class="text-danger small">{{ form.returned_date.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                {% if fine > 0 %}
+                <div class="mb-3 form-check">
+                    {{ form.fine_paid }}
+                    <label class="form-check-label" for="{{ form.fine_paid.id_for_label }}">
+                        Fine Paid (ETB {{ fine }})
+                    </label>
+                </div>
+                {% endif %}
+                <div class="mb-3">
+                    <label class="form-label">Notes</label>
+                    {{ form.notes }}
+                </div>
+                <div class="mt-3">
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-check-circle me-2"></i>Confirm Return
+                    </button>
+                    <a href="{% url 'borrow_list' %}" class="btn btn-outline-secondary ms-2">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.querySelectorAll('input[type=date], textarea').forEach(el => el.classList.add('form-control'));
+</script>
+{% endblock %}

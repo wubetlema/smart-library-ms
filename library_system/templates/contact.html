@@ -1,0 +1,93 @@
+{% extends 'accounts/base.html' %}
+{% block title %}Contact – Smart Library{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <div class="d-flex align-items-center gap-3 mb-4">
+            <div class="rounded-circle d-flex align-items-center justify-content-center text-white"
+                style="width:46px;height:46px;background:linear-gradient(135deg,#2563eb,#3d8bfd);flex-shrink:0;">
+                <i class="bi bi-envelope fs-5"></i>
+            </div>
+            <div>
+                <h5 class="fw-bold mb-0">Contact Us</h5>
+                <p class="text-muted small mb-0">Send us a message and we'll get back to you</p>
+            </div>
+        </div>
+
+        {% if sent %}
+        <div class="alert alert-success d-flex align-items-center gap-2 mb-4">
+            <i class="bi bi-check-circle-fill fs-5"></i>
+            <div>
+                <div class="fw-semibold">Message sent successfully!</div>
+                <div class="small">We'll get back to you as soon as possible.</div>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="row g-4 mb-4">
+            <div class="col-md-4">
+                <div class="card p-3 text-center h-100">
+                    <i class="bi bi-geo-alt text-primary fs-2 mb-2"></i>
+                    <div class="fw-semibold small">Location</div>
+                    <div class="text-muted small">Addis Ababa, Ethiopia</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card p-3 text-center h-100">
+                    <i class="bi bi-envelope text-success fs-2 mb-2"></i>
+                    <div class="fw-semibold small">Email</div>
+                    <div class="text-muted small">library@smartlib.et</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card p-3 text-center h-100">
+                    <i class="bi bi-clock text-warning fs-2 mb-2"></i>
+                    <div class="fw-semibold small">Hours</div>
+                    <div class="text-muted small">Mon–Fri, 8am – 6pm</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header"><i class="bi bi-chat-left-text me-2 text-primary"></i>Send a Message</div>
+            <div class="card-body">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Your Name <span class="text-danger">*</span></label>
+                            <input type="text" name="name" class="form-control" value="{{ form_data.name|default:'' }}"
+                                required placeholder="John Doe">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Email Address <span class="text-danger">*</span></label>
+                            <input type="email" name="email" class="form-control"
+                                value="{{ form_data.email|default:'' }}" required placeholder="your@email.com">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Subject <span class="text-danger">*</span></label>
+                            <input type="text" name="subject" class="form-control"
+                                value="{{ form_data.subject|default:'' }}" required placeholder="How can we help?">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Message <span class="text-danger">*</span></label>
+                            <textarea name="message" class="form-control" rows="5" required
+                                placeholder="Write your message here...">{{ form_data.message|default:'' }}</textarea>
+                        </div>
+                    </div>
+                    {% if error %}
+                    <div class="alert alert-danger mt-3 py-2 small">{{ error }}</div>
+                    {% endif %}
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="bi bi-send me-2"></i>Send Message
+                        </button>
+                        <a href="{% url 'about' %}" class="btn btn-outline-secondary px-4">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

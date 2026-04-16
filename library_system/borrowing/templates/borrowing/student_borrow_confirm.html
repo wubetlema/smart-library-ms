@@ -1,0 +1,81 @@
+{% extends 'accounts/base.html' %}
+{% block title %}Borrow {{ book.title }} – LibraryMS{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <nav aria-label="breadcrumb" class="mb-3">
+            <ol class="breadcrumb" style="font-size:.82rem;">
+                <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'book_list' %}">Books</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'book_detail' book.pk %}">{{ book.title|truncatechars:30
+                        }}</a></li>
+                <li class="breadcrumb-item active">Borrow</li>
+            </ol>
+        </nav>
+
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <div class="text-center mb-4">
+                    <div class="rounded-circle bg-success d-flex align-items-center justify-content-center mx-auto mb-3 text-white"
+                        style="width:56px;height:56px;">
+                        <i class="bi bi-book-half fs-4"></i>
+                    </div>
+                    <h5 class="fw-bold mb-1">Confirm Borrow</h5>
+                    <p class="text-muted small mb-0">You are about to borrow the following book</p>
+                </div>
+
+                <!-- Book info -->
+                <div class="card mb-4" style="background:#f8fafc;border:1px solid #e2e8f0;">
+                    <div class="card-body d-flex gap-3 align-items-center p-3">
+                        {% if book.cover_image %}
+                        <img src="{{ book.cover_image.url }}"
+                            style="width:60px;height:80px;object-fit:cover;border-radius:6px;" alt="">
+                        {% elif book.cover_url %}
+                        <img src="{{ book.cover_url }}"
+                            style="width:60px;height:80px;object-fit:cover;border-radius:6px;" alt="">
+                        {% else %}
+                        <div class="bg-light d-flex align-items-center justify-content-center rounded flex-shrink-0"
+                            style="width:60px;height:80px;">
+                            <i class="bi bi-book text-secondary fs-4"></i>
+                        </div>
+                        {% endif %}
+                        <div>
+                            <div class="fw-bold">{{ book.title }}</div>
+                            <div class="text-muted small"><i class="bi bi-person me-1"></i>{{ book.author }}</div>
+                            {% if book.category %}
+                            <span class="badge bg-secondary mt-1" style="font-size:.7rem;">{{ book.category }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Borrow terms -->
+                <div class="alert alert-info d-flex gap-2 align-items-start py-2 mb-4">
+                    <i class="bi bi-info-circle-fill flex-shrink-0 mt-1"></i>
+                    <div class="small">
+                        <div class="fw-semibold mb-1">Borrowing Terms</div>
+                        <ul class="mb-0 ps-3">
+                            <li>Loan period: <strong>7 days</strong></li>
+                            <li>Late fine: <strong>ETB 2/day</strong> after due date</li>
+                            <li>Max books at once: <strong>3</strong></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success">
+                            <i class="bi bi-check-circle me-2"></i>Confirm Borrow
+                        </button>
+                        <a href="{% url 'book_detail' book.pk %}" class="btn btn-outline-secondary">
+                            Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
